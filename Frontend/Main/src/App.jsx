@@ -12,8 +12,10 @@ import {
   ChevronRight,
   ClipboardList,
 } from "lucide-react";
+const API_URL = "http://localhost:5000/api";
 
-const API_URL = "https://manage-3vah.onrender.com/api";
+
+// const API_URL = "https://manage-3vah.onrender.com/api";
 
 function App() {
   const [activeTab, setActiveTab] = useState("inventory");
