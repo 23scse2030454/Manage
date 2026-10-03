@@ -4,13 +4,9 @@ const cors = require("cors");
 const Product = require("./productModel"); 
 const Sale = require("./saleModel"); 
 
-// CORS configuration (Bhai, yahan maine origin ko fully correct link ke sath completely open aur clear kar diya hai)
+// CORS configuration (Ab kisi bhi Vercel ya local link par koi error nahi aayega!)
 router.use(cors({
-  origin: [
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173",
-    "https://manage-psi-flax.vercel.app" // Yahan aapka sahi production Vercel domain bilkul clear set hai
-  ],
+  origin: "*", // Tara (*) lagane se har ek preview aur live link automatic allow ho jayega
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
@@ -63,7 +59,7 @@ router.post("/products/add-single", async (req, res) => {
 
     let product = await Product.findOne({ name: new RegExp("^" + name.trim() + "$", "i") });
     
-    // Agar frontend se price blank ya invalid string aaye toh schema safe default 0 uthayega
+    // Default price to 0 if invalid or empty
     const parsedPrice = parseFloat(price) || 0;
 
     if (product) {
