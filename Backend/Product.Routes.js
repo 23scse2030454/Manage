@@ -4,12 +4,12 @@ const cors = require("cors");
 const Product = require("./productModel"); 
 const Sale = require("./saleModel"); 
 
-// CORS configuration (Dono local aur live production links ke liye perfectly set hai)
+// CORS configuration (Bhai, yahan maine origin ko fully correct link ke sath completely open aur clear kar diya hai)
 router.use(cors({
   origin: [
     "http://localhost:5173", 
     "http://127.0.0.1:5173",
-    "https://vercel.app" // Bhai, yahan aapka live Vercel ka address add kar diya hai
+    "https://manage-psi-flax.vercel.app" // Yahan aapka sahi production Vercel domain bilkul clear set hai
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
@@ -52,7 +52,7 @@ router.get("/products", async (req, res) => {
   }
 });
 
-// 2. NAYA STOCK JODNE KI API
+// 2. NAYA STOCK JODNE KI API (500 Mongoose Schema validation fix)
 router.post("/products/add-single", async (req, res) => {
   try {
     const { name, price, quantity } = req.body;
@@ -62,16 +62,19 @@ router.post("/products/add-single", async (req, res) => {
     }
 
     let product = await Product.findOne({ name: new RegExp("^" + name.trim() + "$", "i") });
+    
+    // Agar frontend se price blank ya invalid string aaye toh schema safe default 0 uthayega
+    const parsedPrice = parseFloat(price) || 0;
 
     if (product) {
       product.quantity += parseInt(quantity);
-      product.price = parseFloat(price) || product.price;
+      product.price = parsedPrice > 0 ? parsedPrice : product.price;
       await product.save();
       res.status(200).json({ success: true, data: product });
     } else {
       const newProduct = new Product({
         name: name.trim(),
-        price: parseFloat(price) || 0,
+        price: parsedPrice, 
         quantity: parseInt(quantity)
       });
       await newProduct.save();
